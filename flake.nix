@@ -13,11 +13,11 @@
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-		    go
+		        go
           ];
-		  shellHook = ''
-		  	zsh
-		  '';
+		      shellHook = ''
+		  	    zsh
+		      '';
         };
       }
     );
