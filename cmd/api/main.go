@@ -78,6 +78,8 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
+	flag.Parse()
+
 	db, err := openDB(cfg)
 	if err != nil {
 		logger.Error(err.Error())
