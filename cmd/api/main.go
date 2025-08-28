@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dianrahmaji/greenlight/internal/data"
+	"github.com/dianrahmaji/greenlight/internal/mailer"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -31,12 +32,20 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
 	config config
 	logger *slog.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -60,6 +69,18 @@ func main() {
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbName := os.Getenv("POSTGRES_DB")
 
+	smtpHost := os.Getenv("SMTP_HOST")
+
+	smtpPort, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	if err != nil {
+		logger.Error("invalid smtp port", "error", err)
+		os.Exit(1)
+	}
+
+	smtpUsername := os.Getenv("SMTP_USERNAME")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	smtpSender := os.Getenv("SMTP_SENDER")
+
 	dsn := fmt.Sprintf("postgres://%s:%s@localhost/%s?sslmode=disable", dbUser, dbPassword, dbName)
 
 	var cfg config
@@ -77,6 +98,12 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
+	flag.StringVar(&cfg.smtp.host, "smtp-host", smtpHost, "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", smtpPort, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", smtpUsername, "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", smtpPassword, "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", smtpSender, "SMTP sender")
+
 	flag.Parse()
 
 	db, err := openDB(cfg)
@@ -93,6 +120,13 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(
+			cfg.smtp.host,
+			cfg.smtp.port,
+			cfg.smtp.username,
+			cfg.smtp.password,
+			cfg.smtp.sender,
+		),
 	}
 
 	err = app.serve()
