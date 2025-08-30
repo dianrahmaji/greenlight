@@ -17,12 +17,13 @@
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-		        go
+			go
             go-migrate-pg
+			hey
           ];
-		      shellHook = ''
-		  	    zsh
-		      '';
+		  shellHook = ''
+			zsh
+		  '';
         };
       }
     );
