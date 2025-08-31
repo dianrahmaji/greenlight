@@ -16,11 +16,14 @@ import (
 
 	"github.com/dianrahmaji/greenlight/internal/data"
 	"github.com/dianrahmaji/greenlight/internal/mailer"
+	"github.com/dianrahmaji/greenlight/internal/vcs"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const version = "1.0.0"
+var (
+	version = vcs.Version()
+)
 
 type config struct {
 	port int
