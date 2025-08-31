@@ -19,6 +19,7 @@
           buildInputs = with pkgs; [
 			go
             go-migrate-pg
+			go-tools
 			hey
           ];
 		  shellHook = ''
