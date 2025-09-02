@@ -17,10 +17,12 @@
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
+			bun
 			go
             go-migrate-pg
 			go-tools
 			hey
+			nodejs_24
           ];
 		  shellHook = ''
 			zsh
